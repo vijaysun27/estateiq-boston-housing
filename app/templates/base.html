@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EstateIQ — Boston Housing Price Predictor. High-accuracy ML regression engine based on the Harrison & Rubinfeld benchmark.">
+    <title>{% block title %}EstateIQ — Boston Housing Price Predictor{% endblock %}</title>
+
+    <!-- Clean Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Top Navigation Header -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="{{ url_for('main.index') }}" class="brand-group" id="brand-home-link">
+                <div class="brand-icon-wrapper">
+                    <span class="brand-icon">⌂</span>
+                </div>
+                <div class="brand-title-box">
+                    <div class="brand-name">Estate<span class="gradient-text">IQ</span></div>
+                    <div class="brand-subtitle">Boston Housing Price Predictor</div>
+                </div>
+            </a>
+
+            <div class="nav-right">
+                <nav class="nav-links" id="main-nav-links">
+                    <a href="{{ url_for('main.index') }}" class="nav-link {% if active_page == 'predictor' %}active{% endif %}" id="nav-link-predictor">Predictor</a>
+                    <a href="{{ url_for('main.insights') }}" class="nav-link {% if active_page == 'insights' %}active{% endif %}" id="nav-link-insights">Model Insights</a>
+                    <a href="{{ url_for('main.about') }}" class="nav-link {% if active_page == 'about' %}active{% endif %}" id="nav-link-about">About</a>
+                </nav>
+
+                <!-- Status indicator based on backend state -->
+                <div class="status-indicator-badge {% if model_ready %}ready{% else %}unavailable{% endif %}" id="header-status-badge">
+                    <span class="status-dot"></span>
+                    <span id="header-status-text">{% if model_ready %}Model Ready{% else %}Model Unavailable{% endif %}</span>
+                </div>
+
+                <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle navigation menu">
+                    ☰
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Slot -->
+    <main class="main-body-container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Application Footer -->
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div class="footer-left">
+                <strong>EstateIQ</strong> &bull; Boston Housing ML Analytics &bull; <span class="badge-version">v1.2.0 (Phase 3)</span>
+                <p class="footer-attribution">
+                    Dataset Provenance: Harrison, D. & Rubinfeld, D.L. (1978) <em>Hedonic prices and the demand for clean air</em>.
+                </p>
+            </div>
+            <div class="footer-links">
+                <a href="{{ url_for('main.index') }}" class="footer-link">Predictor</a>
+                <a href="{{ url_for('main.insights') }}" class="footer-link">Model Insights</a>
+                <a href="{{ url_for('main.about') }}" class="footer-link">Ethics & Documentation</a>
+            </div>
+            <div class="footer-disclaimer-note">
+                <strong>Historical Benchmark Notice:</strong> Predictions are computed using 1970 census tract statistics expressed in thousands of 1970 US dollars. They demonstrate supervised machine learning and regression algorithms and are not current market appraisals.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core App Logic -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

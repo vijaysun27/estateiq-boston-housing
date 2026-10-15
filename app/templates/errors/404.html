@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}404 — Page Not Found | EstateIQ{% endblock %}
+
+{% block content %}
+<div class="container error-page">
+    <div class="card error-card">
+        <div class="error-code">404</div>
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-desc">The requested resource could not be found. Please check the URL or return to the predictor dashboard.</p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">Return to Predictor</a>
+    </div>
+</div>
+{% endblock %}

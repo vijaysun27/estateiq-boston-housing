@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}About & Ethical Policy — EstateIQ{% endblock %}
+
+{% block content %}
+<div class="container app-workspace">
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="hero-pill">
+                <span>⚖️</span> Ethics & Architectural Standards
+            </div>
+            <h1 class="hero-title">About EstateIQ</h1>
+            <p class="hero-subtitle">
+                An educational machine learning web application demonstrating rigorous regression modeling, schema validation, and fair AI principles.
+            </p>
+        </div>
+    </div>
+
+    <div class="insights-grid">
+        <!-- Section 1: Overview & Architecture -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Project Overview & Architecture</h2>
+                    <p class="card-subtitle">Production-grade Flask application with decoupled ML inference.</p>
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                <strong>EstateIQ</strong> demonstrates the end-to-end lifecycle of a machine learning application: from historical dataset acquisition and validation, through reproducible cross-validation and pipeline serialization, to web deployment via an Application Factory pattern.
+            </p>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                The inference engine loads the serialized pipeline (<code>StandardScaler</code> + <code>GradientBoostingRegressor</code>) once per process during application startup, ensuring zero retraining latency during HTTP request handling.
+            </p>
+        </div>
+
+        <!-- Section 2: Ethical Exclusion of Variable B -->
+        <div class="card" style="border-left: 3px solid var(--secondary-accent);">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title" style="color: var(--secondary-accent);">Ethical Feature Policy: Exclusion of Variable 'B'</h2>
+                    <p class="card-subtitle">Commitment to fair AI, legal compliance, and ethical data science standards.</p>
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 0.75rem;">
+                The original 1978 study dataset contained a 13th feature designated as <code>B</code>, computed as <code>1000(Bk - 0.63)^2</code>, where <code>Bk</code> represented the proportion of Black residents in each town.
+            </p>
+            <p style="color: var(--text-secondary); margin-bottom: 0.75rem;">
+                In accordance with fair housing regulations, non-discrimination laws, and modern responsible AI principles:
+            </p>
+            <ul style="color: var(--text-secondary); padding-left: 1.5rem; line-height: 1.7; margin-bottom: 0.75rem;">
+                <li>Variable <code>B</code> is <strong>strictly omitted</strong> from user interfaces and HTTP API endpoints.</li>
+                <li>In Phase 2, the production Scikit-Learn pipeline was trained exclusively on the 12 non-demographic features, eliminating the variable from all model weights.</li>
+                <li>Any attempts to submit variable <code>B</code> via the API are rejected by strict schema validation.</li>
+            </ul>
+        </div>
+
+        <!-- Section 3: Historical Limitations & Disclaimer -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Historical Limitations & Non-Appraisal Notice</h2>
+                    <p class="card-subtitle">Essential caveats regarding 1970s benchmark observations.</p>
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 0.75rem;">
+                The Boston Housing benchmark reflects census tract metrics collected in 1970. Over the past 50+ years, metropolitan Boston has experienced substantial demographic shifts, zoning transformations, and macroeconomic inflation.
+            </p>
+            <p style="color: var(--text-secondary);">
+                <strong>Critical Notice:</strong> Valuations produced by EstateIQ represent historical 1970 median valuations in thousands of US dollars ($1,000s). They are intended solely for academic study of regression algorithms and <strong>must never be interpreted as contemporary financial, mortgage, or property appraisals</strong>.
+            </p>
+        </div>
+
+        <!-- Section 4: Dataset Citation -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Dataset Attribution & Provenance</h2>
+                    <p class="card-subtitle">Original research citation and collection history.</p>
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                <strong>Primary Research Publication:</strong><br>
+                Harrison, David and Rubinfeld, Daniel L. (1978). <em>Hedonic Housing Prices and the Demand for Clean Air</em>. Journal of Environmental Economics and Management, 5(1), pp. 81–102.
+            </p>
+            <p style="color: var(--text-secondary);">
+                Data originally collected by the Carnegie Mellon University StatLib archive and distributed for educational machine learning purposes.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

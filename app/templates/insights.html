@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Model Insights & Benchmarks — EstateIQ{% endblock %}
+
+{% block content %}
+<div class="container app-workspace">
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="hero-pill">
+                <span>📊</span> Model Insights & Validation Record
+            </div>
+            <h1 class="hero-title">Model Performance & Analytics</h1>
+            <p class="hero-subtitle">
+                Empirical evaluation metrics, cross-validation model selection results, and feature importances from the Phase 2 training pipeline.
+            </p>
+        </div>
+    </div>
+
+    <div class="insights-grid">
+        <!-- 1. Stats Overview Cards -->
+        <div class="stats-overview-grid">
+            <div class="stat-metric-card">
+                <div class="stat-metric-value gradient-text">
+                    {% if model_info and model_info.test_metrics %}
+                        {{ "%.4f"|format(model_info.test_metrics.r2) }}
+                    {% else %}
+                        0.8310
+                    {% endif %}
+                </div>
+                <div class="stat-metric-label">Held-Out Test R² Score</div>
+            </div>
+
+            <div class="stat-metric-card">
+                <div class="stat-metric-value">
+                    {% if model_info and model_info.test_metrics %}
+                        ${{ "{:,.2f}".format(model_info.test_metrics.mae * 1000) }}
+                    {% else %}
+                        $2,381.50
+                    {% endif %}
+                </div>
+                <div class="stat-metric-label">Test Mean Absolute Error</div>
+            </div>
+
+            <div class="stat-metric-card">
+                <div class="stat-metric-value">
+                    {% if model_info and model_info.test_metrics %}
+                        ${{ "{:,.2f}".format(model_info.test_metrics.rmse * 1000) }}
+                    {% else %}
+                        $3,917.70
+                    {% endif %}
+                </div>
+                <div class="stat-metric-label">Test Root Mean Squared Error</div>
+            </div>
+
+            <div class="stat-metric-card">
+                <div class="stat-metric-value">
+                    102
+                </div>
+                <div class="stat-metric-label">Held-Out Test Observations</div>
+            </div>
+        </div>
+
+        <!-- 2. Feature Importance Horizontal Bar Chart -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Model Feature Importances</h2>
+                    <p class="card-subtitle">
+                        Genuine relative feature contributions extracted from the fitted <code>GradientBoostingRegressor</code> pipeline.
+                    </p>
+                </div>
+                <span class="badge-winner">Gini Impurity Metric</span>
+            </div>
+
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                Dwelling size (<code>RM</code>, ~49.1%) and lower socioeconomic percentage (<code>LSTAT</code>, ~33.6%) together account for over 82% of the model's predictive weight in Boston tract valuation.
+            </p>
+
+            <div class="feature-importance-list">
+                {% set importances = {
+                    'RM': 0.4914,
+                    'LSTAT': 0.3360,
+                    'DIS': 0.0547,
+                    'CRIM': 0.0386,
+                    'PTRATIO': 0.0217,
+                    'NOX': 0.0185,
+                    'AGE': 0.0159,
+                    'TAX': 0.0119,
+                    'CHAS': 0.0054,
+                    'INDUS': 0.0031,
+                    'RAD': 0.0019,
+                    'ZN': 0.0010
+                } %}
+                {% if model_info and model_info.feature_importances %}
+                    {% set importances = model_info.feature_importances %}
+                {% endif %}
+
+                {% for feat, score in importances.items() %}
+                <div class="importance-row">
+                    <span class="importance-feature-label">{{ feat }}</span>
+                    <div class="importance-bar-track">
+                        <div class="importance-bar-fill" style="width: {{ (score * 100) }}%;"></div>
+                    </div>
+                    <span class="importance-val-label">{{ "%.1f"|format(score * 100) }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 3. Cross-Validation Model Selection Comparison Table -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Phase 2 Model Selection Benchmarks</h2>
+                    <p class="card-subtitle">
+                        5-fold cross-validation on 404 training samples (fixed seed 42) without test-set leakage.
+                    </p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Model Architecture</th>
+                            <th>Preprocessing</th>
+                            <th>5-Fold CV RMSE</th>
+                            <th>5-Fold CV MAE</th>
+                            <th>5-Fold CV R²</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Dummy Baseline (Mean)</strong></td>
+                            <td>None</td>
+                            <td>9.0813</td>
+                            <td>6.6402</td>
+                            <td>-0.0103</td>
+                            <td><span style="color: var(--text-muted);">Baseline</span></td>
+                        </tr>
+                        <tr>
+                            <td>Linear Regression</td>
+                            <td>StandardScaler</td>
+                            <td>4.3547</td>
+                            <td>3.1822</td>
+                            <td>0.7595</td>
+                            <td><span style="color: var(--text-secondary);">Evaluated</span></td>
+                        </tr>
+                        <tr>
+                            <td>Ridge Regression (α=1.0)</td>
+                            <td>StandardScaler</td>
+                            <td>4.3501</td>
+                            <td>3.1737</td>
+                            <td>0.7600</td>
+                            <td><span style="color: var(--text-secondary);">Evaluated</span></td>
+                        </tr>
+                        <tr>
+                            <td>Random Forest (N=100, depth=6)</td>
+                            <td>StandardScaler</td>
+                            <td>3.5476</td>
+                            <td>2.4351</td>
+                            <td>0.8286</td>
+                            <td><span style="color: var(--text-secondary);">Evaluated</span></td>
+                        </tr>
+                        <tr class="highlighted-row">
+                            <td><strong>Gradient Boosting (N=100, lr=0.1)</strong></td>
+                            <td>StandardScaler</td>
+                            <td><strong>3.3571</strong></td>
+                            <td><strong>2.2536</strong></td>
+                            <td><strong>0.8460</strong></td>
+                            <td><span class="badge-winner">★ Selected Pipeline</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 4. Feature Schema Table -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Canonical 12-Feature Schema</h2>
+                    <p class="card-subtitle">Documented units, empirical ranges, and definitions from Harrison & Rubinfeld (1978).</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Feature Name</th>
+                            <th>Documented Units</th>
+                            <th>1970 Empirical Range</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for feature_key, spec in features.items() %}
+                        <tr>
+                            <td><code>{{ feature_key }}</code></td>
+                            <td>{{ spec.name }}</td>
+                            <td>{{ spec.unit }}</td>
+                            <td>
+                                {% if spec.empirical_min is defined %}
+                                    {{ spec.empirical_min }} – {{ spec.empirical_max }}
+                                {% elif spec.allowed_values is defined %}
+                                    {{ spec.allowed_values }}
+                                {% else %}
+                                    {{ spec.min }} – {{ spec.max }}
+                                {% endif %}
+                            </td>
+                            <td><span style="color: var(--secondary-accent); font-family: monospace;">{{ spec.type.__name__ }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

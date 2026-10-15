@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+
+{% block title %}Predictor — EstateIQ Boston Housing{% endblock %}
+
+{% block content %}
+<div class="container app-workspace">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-pill">
+                <span>✦</span> ML Regression Engine &bull; Scikit-Learn Pipeline
+            </div>
+            <h1 class="hero-title">Predict your property's value.</h1>
+            <p class="hero-subtitle">
+                Explore how historical property and neighborhood characteristics influence an ML-based house price estimate.
+            </p>
+        </div>
+
+        <!-- Restrained Abstract Geometric Chart Graphic -->
+        <div class="hero-visual" aria-hidden="true">
+            <div class="abstract-chart-grid">
+                <div class="chart-bar" style="height: 38%;"></div>
+                <div class="chart-bar" style="height: 55%;"></div>
+                <div class="chart-bar" style="height: 42%;"></div>
+                <div class="chart-bar" style="height: 85%;"></div>
+                <div class="chart-bar" style="height: 68%;"></div>
+                <div class="chart-bar" style="height: 94%;"></div>
+                <div class="chart-bar" style="height: 50%;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Notice / Alert Banner -->
+    <div id="alert-banner" class="alert alert-info hidden" role="alert">
+        <span class="alert-icon" id="alert-icon">ℹ️</span>
+        <div id="alert-message"></div>
+    </div>
+
+    <!-- Main Workspace (2-Column Desktop Grid) -->
+    <div class="workspace-grid">
+        <!-- LEFT: Property & Tract Input Form -->
+        <section class="card form-main-card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Tract Characteristics</h2>
+                    <p class="card-subtitle">Provide characteristics for the census tract. All 12 inputs are strictly validated.</p>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-load-sample" title="Populate form with a valid demonstration tract">
+                        <span>📋</span> Load Sample Data
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-reset-form" title="Clear all inputs and reset form to initial empty state">
+                        <span>🔄</span> Reset Form
+                    </button>
+                </div>
+            </div>
+
+            <form id="prediction-form" novalidate autocomplete="off">
+                <!-- Card 1: Neighborhood -->
+                <div class="form-section-card">
+                    <div class="section-card-title">
+                        <span class="section-icon">🏘️</span>
+                        <span>Neighborhood Characteristics</span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <!-- CRIM -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="CRIM" class="form-label">
+                                    Crime Rate <span class="req-star">*</span>
+                                    <span class="feature-code-tag">CRIM</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Per-capita crime rate by town (ratio). Historical 1970 dataset range: 0.006 – 88.98.">?</span>
+                            </div>
+                            <div class="input-with-unit">
+                                <input type="number" step="0.001" min="0" max="100" class="form-input" id="CRIM" name="CRIM" placeholder="e.g. 0.02" required>
+                                <span class="input-unit-badge">ratio</span>
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 0.006 – 88.98</span>
+                            </div>
+                            <div class="field-error-msg" id="error-CRIM"></div>
+                            <div class="field-warning-msg" id="warning-CRIM"></div>
+                        </div>
+
+                        <!-- ZN -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="ZN" class="form-label">
+                                    Large-Lot Zoning <span class="req-star">*</span>
+                                    <span class="feature-code-tag">ZN</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Proportion of residential land zoned for lots over 25,000 sq.ft. Range: 0.0 – 100.0%.">?</span>
+                            </div>
+                            <div class="input-with-unit">
+                                <input type="number" step="0.5" min="0" max="100" class="form-input" id="ZN" name="ZN" placeholder="e.g. 18.0" required>
+                                <span class="input-unit-badge">%</span>
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 0.0 – 100.0%</span>
+                            </div>
+                            <div class="field-error-msg" id="error-ZN"></div>
+                            <div class="field-warning-msg" id="warning-ZN"></div>
+                        </div>
+
+                        <!-- INDUS -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="INDUS" class="form-label">
+                                    Non-Retail Business <span class="req-star">*</span>
+                                    <span class="feature-code-tag">INDUS</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Proportion of non-retail business acres per town. Range: 0.46 – 27.74%.">?</span>
+                            </div>
+                            <div class="input-with-unit">
+                                <input type="number" step="0.1" min="0" max="40" class="form-input" id="INDUS" name="INDUS" placeholder="e.g. 2.5" required>
+                                <span class="input-unit-badge">%</span>
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 0.46 – 27.74%</span>
+                            </div>
+                            <div class="field-error-msg" id="error-INDUS"></div>
+                            <div class="field-warning-msg" id="warning-INDUS"></div>
+                        </div>
+
+                        <!-- CHAS (Clear Binary Selector) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label">
+                                    Charles River Boundary <span class="req-star">*</span>
+                                    <span class="feature-code-tag">CHAS</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Charles River boundary indicator. 1 if tract bounds river; 0 otherwise.">?</span>
+                            </div>
+                            <!-- Hidden input storing numeric value -->
+                            <input type="hidden" id="CHAS" name="CHAS" value="0">
+                            <div class="segmented-control" role="group" aria-label="Charles River Boundary">
+                                <button type="button" class="segmented-option active" data-value="0" id="btn-chas-0">
+                                    <span>✕</span> 0 (No River)
+                                </button>
+                                <button type="button" class="segmented-option" data-value="1" id="btn-chas-1">
+                                    <span>≋</span> 1 (Bounds River)
+                                </button>
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">Binary dummy: 0 or 1</span>
+                            </div>
+                            <div class="field-error-msg" id="error-CHAS"></div>
+                        </div>
+
+                        <!-- RAD (Discrete Highway Accessibility Index) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="RAD" class="form-label">
+                                    Highway Accessibility <span class="req-star">*</span>
+                                    <span class="feature-code-tag">RAD</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Index of accessibility to radial highways. Valid empirical levels in Boston dataset: 1 to 8, or 24 (circumferential highway).">?</span>
+                            </div>
+                            <select class="form-select" id="RAD" name="RAD" required>
+                                <option value="" disabled selected>Select accessibility index...</option>
+                                <option value="1">Level 1 (Highest local access)</option>
+                                <option value="2">Level 2</option>
+                                <option value="3">Level 3</option>
+                                <option value="4">Level 4</option>
+                                <option value="5">Level 5</option>
+                                <option value="6">Level 6</option>
+                                <option value="7">Level 7</option>
+                                <option value="8">Level 8</option>
+                                <option value="24">Level 24 (Route 128 circumferential highway)</option>
+                            </select>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">Discrete levels: 1–8, 24</span>
+                            </div>
+                            <div class="field-error-msg" id="error-RAD"></div>
+                        </div>
+
+                        <!-- TAX (Synchronized Input & Slider) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="TAX" class="form-label">
+                                    Property Tax Rate <span class="req-star">*</span>
+                                    <span class="feature-code-tag">TAX</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Full-value property-tax rate per $10,000. Range: $187 – $711.">?</span>
+                            </div>
+                            <div class="control-dual-wrapper">
+                                <div class="input-with-unit">
+                                    <input type="number" step="1" min="100" max="1000" class="form-input" id="TAX" name="TAX" placeholder="e.g. 300" required>
+                                    <span class="input-unit-badge">/$10k</span>
+                                </div>
+                                <input type="range" min="180" max="720" step="5" class="form-range" id="slider-TAX" aria-label="Tax rate slider" tabindex="0">
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: $187 – $711</span>
+                            </div>
+                            <div class="field-error-msg" id="error-TAX"></div>
+                            <div class="field-warning-msg" id="warning-TAX"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Property & Environment -->
+                <div class="form-section-card">
+                    <div class="section-card-title">
+                        <span class="section-icon">📐</span>
+                        <span>Property & Environmental Characteristics</span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <!-- RM (Synchronized Input & Slider) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="RM" class="form-label">
+                                    Average Rooms <span class="req-star">*</span>
+                                    <span class="feature-code-tag">RM</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Average number of rooms per dwelling. Typical residential range: 3.56 – 8.78 rooms. Top predictive feature.">?</span>
+                            </div>
+                            <div class="control-dual-wrapper">
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.05" min="1" max="15" class="form-input" id="RM" name="RM" placeholder="e.g. 6.50" required>
+                                    <span class="input-unit-badge">rooms</span>
+                                </div>
+                                <input type="range" min="3.5" max="8.8" step="0.05" class="form-range" id="slider-RM" aria-label="Average rooms slider" tabindex="0">
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 3.56 – 8.78</span>
+                            </div>
+                            <div class="field-error-msg" id="error-RM"></div>
+                            <div class="field-warning-msg" id="warning-RM"></div>
+                        </div>
+
+                        <!-- AGE (Synchronized Input & Slider) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="AGE" class="form-label">
+                                    Built Pre-1940 <span class="req-star">*</span>
+                                    <span class="feature-code-tag">AGE</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Proportion of owner-occupied units built prior to 1940. Range: 0.0 – 100.0%.">?</span>
+                            </div>
+                            <div class="control-dual-wrapper">
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.5" min="0" max="100" class="form-input" id="AGE" name="AGE" placeholder="e.g. 65.0" required>
+                                    <span class="input-unit-badge">%</span>
+                                </div>
+                                <input type="range" min="0" max="100" step="1" class="form-range" id="slider-AGE" aria-label="Units built pre-1940 slider" tabindex="0">
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 2.9 – 100.0%</span>
+                            </div>
+                            <div class="field-error-msg" id="error-AGE"></div>
+                            <div class="field-warning-msg" id="warning-AGE"></div>
+                        </div>
+
+                        <!-- NOX (Synchronized Input & Slider) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="NOX" class="form-label">
+                                    Nitric Oxides <span class="req-star">*</span>
+                                    <span class="feature-code-tag">NOX</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Nitrogen oxide concentration in parts per 10 million. Range: 0.385 – 0.871 p10m.">?</span>
+                            </div>
+                            <div class="control-dual-wrapper">
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.005" min="0.3" max="1.0" class="form-input" id="NOX" name="NOX" placeholder="e.g. 0.45" required>
+                                    <span class="input-unit-badge">p10m</span>
+                                </div>
+                                <input type="range" min="0.385" max="0.875" step="0.005" class="form-range" id="slider-NOX" aria-label="Nitric oxides slider" tabindex="0">
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 0.385 – 0.871 p10m</span>
+                            </div>
+                            <div class="field-error-msg" id="error-NOX"></div>
+                            <div class="field-warning-msg" id="warning-NOX"></div>
+                        </div>
+
+                        <!-- DIS (Synchronized Input & Slider) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="DIS" class="form-label">
+                                    Employment Distance <span class="req-star">*</span>
+                                    <span class="feature-code-tag">DIS</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Weighted distances to five Boston employment centres. Range: 1.13 – 12.13.">?</span>
+                            </div>
+                            <div class="control-dual-wrapper">
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.05" min="0.5" max="20" class="form-input" id="DIS" name="DIS" placeholder="e.g. 4.50" required>
+                                    <span class="input-unit-badge">dist</span>
+                                </div>
+                                <input type="range" min="1.1" max="12.2" step="0.1" class="form-range" id="slider-DIS" aria-label="Distance to employment slider" tabindex="0">
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 1.13 – 12.13</span>
+                            </div>
+                            <div class="field-error-msg" id="error-DIS"></div>
+                            <div class="field-warning-msg" id="warning-DIS"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Socioeconomic Factors -->
+                <div class="form-section-card">
+                    <div class="section-card-title">
+                        <span class="section-icon">📊</span>
+                        <span>Socioeconomic Factors</span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <!-- PTRATIO (Synchronized Input & Slider) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="PTRATIO" class="form-label">
+                                    Pupil-Teacher Ratio <span class="req-star">*</span>
+                                    <span class="feature-code-tag">PTRATIO</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Pupil-teacher ratio by town school district. Range: 12.6 – 22.0.">?</span>
+                            </div>
+                            <div class="control-dual-wrapper">
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.1" min="10" max="30" class="form-input" id="PTRATIO" name="PTRATIO" placeholder="e.g. 15.0" required>
+                                    <span class="input-unit-badge">ratio</span>
+                                </div>
+                                <input type="range" min="12.5" max="22.0" step="0.1" class="form-range" id="slider-PTRATIO" aria-label="Pupil-teacher ratio slider" tabindex="0">
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 12.6 – 22.0</span>
+                            </div>
+                            <div class="field-error-msg" id="error-PTRATIO"></div>
+                            <div class="field-warning-msg" id="warning-PTRATIO"></div>
+                        </div>
+
+                        <!-- LSTAT (Synchronized Input & Slider) -->
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label for="LSTAT" class="form-label">
+                                    Lower Status Population <span class="req-star">*</span>
+                                    <span class="feature-code-tag">LSTAT</span>
+                                </label>
+                                <span class="tooltip-trigger" title="Percentage of population represented by the dataset's historical lower-status metric. Strong negative correlation with housing price.">?</span>
+                            </div>
+                            <div class="control-dual-wrapper">
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.1" min="0.1" max="50" class="form-input" id="LSTAT" name="LSTAT" placeholder="e.g. 5.0" required>
+                                    <span class="input-unit-badge">%</span>
+                                </div>
+                                <input type="range" min="1.7" max="38.0" step="0.1" class="form-range" id="slider-LSTAT" aria-label="Lower status population slider" tabindex="0">
+                            </div>
+                            <div class="field-meta-row">
+                                <span class="field-empirical-range">1970 range: 1.73 – 37.97%</span>
+                            </div>
+                            <div class="field-error-msg" id="error-LSTAT"></div>
+                            <div class="field-warning-msg" id="warning-LSTAT"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Toolbar -->
+                <div class="form-actions-toolbar">
+                    <button type="submit" class="btn btn-primary" id="btn-submit-prediction">
+                        <span id="btn-submit-icon">⚡</span>
+                        <span id="btn-submit-text">Estimate House Price</span>
+                    </button>
+                    <button type="button" class="btn btn-outline" id="btn-reset-secondary">
+                        Reset Form
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- RIGHT: Prediction Result Panel -->
+        <aside class="results-panel-wrapper">
+            <div class="result-card" id="results-panel">
+                <!-- 1. Standby / Empty State -->
+                <div class="standby-state-box" id="state-standby">
+                    <div class="standby-illustration">⌂</div>
+                    <h3 class="standby-title">Awaiting Input</h3>
+                    <p class="standby-desc">
+                        Provide tract characteristics or click <strong>Load Sample Data</strong>, then select <strong>Estimate House Price</strong> to generate an ML valuation.
+                    </p>
+                </div>
+
+                <!-- 2. Loading State -->
+                <div class="loading-state-box hidden" id="state-loading">
+                    <div class="loading-spinner-large"></div>
+                    <h3 class="loading-title">Generating Prediction</h3>
+                    <p class="loading-subtitle">Applying StandardScaler and running GradientBoosting pipeline...</p>
+                </div>
+
+                <!-- 3. Result State -->
+                <div class="result-active-box hidden" id="state-result">
+                    <div class="result-header-bar">
+                        <span class="card-title" style="font-size: 1.05rem;">Prediction Output</span>
+                        <span class="result-badge-live">● Complete</span>
+                    </div>
+
+                    <div class="result-body">
+                        <!-- Valuation Hero Figure -->
+                        <div class="valuation-highlight-hero">
+                            <div class="valuation-caption">Estimated 1970s Benchmark Valuation</div>
+                            <div class="valuation-primary-figure" id="display-dollar-value">$0.00</div>
+                            <div class="valuation-sub-badge">
+                                Raw MEDV Target: <span class="badge-medv-raw" id="display-raw-value">0.00</span> ($1,000s)
+                            </div>
+                        </div>
+
+                        <!-- Submitted Features Summary Chips -->
+                        <div class="summary-chips-section">
+                            <div class="summary-chips-title">Submitted Feature Summary</div>
+                            <div class="chips-cloud" id="summary-chips-container">
+                                <!-- Populated dynamically by app.js -->
+                            </div>
+                        </div>
+
+                        <!-- Model Metadata Details -->
+                        <div class="model-meta-box">
+                            <div class="meta-row">
+                                <span class="meta-label">Active Model</span>
+                                <span class="meta-val" id="display-model-type">Scikit-Learn Pipeline</span>
+                            </div>
+                            <div class="meta-row">
+                                <span class="meta-label">Artifact</span>
+                                <span class="meta-val" id="display-model-id">boston_housing_pipeline</span>
+                            </div>
+                            <div class="meta-row">
+                                <span class="meta-label">Test R² Score</span>
+                                <span class="meta-val" id="display-model-r2">0.8310</span>
+                            </div>
+                            <div class="meta-row">
+                                <span class="meta-label">Test MAE</span>
+                                <span class="meta-val" id="display-model-mae">$2,381.50</span>
+                            </div>
+                        </div>
+
+                        <!-- Historical Benchmark Notice -->
+                        <div class="disclaimer-box">
+                            <div class="disclaimer-title">⚖️ Educational Benchmark Notice</div>
+                            <div class="disclaimer-body">
+                                This estimate corresponds to the 1970 Boston Housing census benchmark. It reflects academic regression modeling and does not represent current real estate market value.
+                            </div>
+                        </div>
+
+                        <!-- Clear Prediction Action (Preserves Form Inputs) -->
+                        <div class="result-actions-box">
+                            <button type="button" class="btn btn-outline btn-block" id="btn-clear-result">
+                                Clear Prediction
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

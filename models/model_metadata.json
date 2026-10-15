@@ -1,0 +1,115 @@
+{
+  "model_name": "EstateIQ Boston Housing Scikit-Learn Pipeline",
+  "model_identifier": "boston_housing_pipeline",
+  "model_type": "Scikit-Learn Pipeline (GradientBoostingRegressor)",
+  "selected_algorithm": "gradient_boosting",
+  "framework": "scikit-learn",
+  "target_variable": "MEDV",
+  "target_unit": "$1,000s USD (1970s historical benchmark)",
+  "features": {
+    "canonical_schema": [
+      "CRIM",
+      "ZN",
+      "INDUS",
+      "CHAS",
+      "NOX",
+      "RM",
+      "AGE",
+      "DIS",
+      "RAD",
+      "TAX",
+      "PTRATIO",
+      "LSTAT"
+    ],
+    "feature_count": 12,
+    "excluded_features": [
+      "B"
+    ],
+    "exclusion_rationale": "Historical racial variable excluded per modern AI ethics and fair housing guidelines."
+  },
+  "dataset_provenance": {
+    "source": "Harrison, D. and Rubinfeld, D.L. (1978) Hedonic prices and the demand for clean air",
+    "total_observations": 506,
+    "train_observations": 404,
+    "test_observations": 102,
+    "random_seed": 42,
+    "test_size": 0.2
+  },
+  "cross_validation_evaluation": {
+    "baseline_dummy_mean": {
+      "cv_mae": 6.6402,
+      "cv_rmse": 9.0813,
+      "cv_r2": -0.0103
+    },
+    "linear_regression": {
+      "cv_mae": 3.1822,
+      "cv_rmse": 4.3547,
+      "cv_r2": 0.7595
+    },
+    "ridge_regression": {
+      "cv_mae": 3.1737,
+      "cv_rmse": 4.3501,
+      "cv_r2": 0.76
+    },
+    "random_forest": {
+      "cv_mae": 2.4351,
+      "cv_rmse": 3.5476,
+      "cv_r2": 0.8286
+    },
+    "gradient_boosting": {
+      "cv_mae": 2.2536,
+      "cv_rmse": 3.3571,
+      "cv_r2": 0.846
+    }
+  },
+  "baseline_comparison": {
+    "baseline_model": "DummyRegressor(strategy='mean')",
+    "held_out_mae": 6.7727,
+    "held_out_rmse": 9.5319,
+    "held_out_r2": -0.0003
+  },
+  "held_out_test_metrics": {
+    "mae": 2.3815,
+    "rmse": 3.9177,
+    "r2": 0.831
+  },
+  "hyperparameters": {
+    "alpha": 0.9,
+    "ccp_alpha": 0.0,
+    "criterion": "friedman_mse",
+    "init": null,
+    "learning_rate": 0.1,
+    "loss": "squared_error",
+    "max_depth": 4,
+    "max_features": null,
+    "max_leaf_nodes": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 1,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "n_estimators": 100,
+    "n_iter_no_change": null,
+    "random_state": 42,
+    "subsample": 1.0,
+    "tol": 0.0001,
+    "validation_fraction": 0.1,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "created_at_utc": "2026-10-15T14:55:52.154323+00:00",
+  "disclaimer": "Historical academic valuation model. Not valid for contemporary financial or market appraisal.",
+  "feature_importances": {
+    "CRIM": 0.0386,
+    "ZN": 0.001,
+    "INDUS": 0.0031,
+    "CHAS": 0.0054,
+    "NOX": 0.0185,
+    "RM": 0.4914,
+    "AGE": 0.0159,
+    "DIS": 0.0547,
+    "RAD": 0.0019,
+    "TAX": 0.0119,
+    "PTRATIO": 0.0217,
+    "LSTAT": 0.336
+  }
+}

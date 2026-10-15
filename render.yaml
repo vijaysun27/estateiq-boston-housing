@@ -1,0 +1,26 @@
+# Render Infrastructure-as-Code Blueprint for EstateIQ Boston Housing Predictor
+# See https://render.com/docs/blueprint-spec for configuration reference.
+
+services:
+  - type: web
+    name: estateiq-boston-housing
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --access-logfile - --error-logfile - wsgi:app
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: MODEL_PIPELINE_PATH
+        value: models/boston_housing_pipeline.joblib
+      - key: SECRET_KEY
+        generateValue: true
