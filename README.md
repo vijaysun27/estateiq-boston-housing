@@ -122,12 +122,13 @@ Open **`http://127.0.0.1:5000`** in your browser.
 In production environments (e.g. Linux cloud containers), run the application using **Gunicorn**:
 
 ```bash
-gunicorn --bind 0.0.0.0:$PORT --workers 2 --access-logfile - --error-logfile - wsgi:app
+gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - --error-logfile - wsgi:app
 ```
 
 - **Entrypoint**: `wsgi:app` (loads `create_app("production")` via [wsgi.py](file:///c:/Users/Vijay/Documents/ProITBridge/Deep_Learning/Chapter8_ANN_for_Regression/estateiq-boston-housing/wsgi.py)).
 - **Binding**: Binds to all network interfaces on the dynamically assigned platform port (`$PORT`).
-- **Workers**: 2 worker processes (optimal for memory usage and concurrency on Render free/starter tiers).
+- **Workers & Threads**: 1 worker with 4 threads (`--workers 1 --threads 4`). Threads share process memory, keeping RAM usage safely around ~120 MB (well below Render's 512 MB free tier ceiling) while processing concurrent requests smoothly.
+- **Timeout**: `--timeout 120` prevents Gunicorn worker timeouts on free-tier cold boot wakeups.
 - **Logging**: Directs access and error logs to standard output/error (`-`) for platform observability.
 
 ---
@@ -153,7 +154,7 @@ EstateIQ is fully configured for deployment on [Render](https://render.com).
    - **Service Name**: `estateiq-boston-housing`
    - **Runtime**: `Python 3.12.3`
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn --bind 0.0.0.0:$PORT --workers 2 --access-logfile - --error-logfile - wsgi:app`
+   - **Start Command**: `gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - --error-logfile - wsgi:app`
    - **Health Check Path**: `/api/health`
    - **Environment Variables**: `FLASK_ENV=production`, `LOG_LEVEL=INFO`, `SECRET_KEY` (auto-generated)
 6. Click **Apply**. Render will build and deploy the application.
@@ -169,7 +170,7 @@ If you prefer configuring via the web UI without blueprints:
    - **Branch**: `main`
    - **Runtime**: `Python 3`
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn --bind 0.0.0.0:$PORT --workers 2 --access-logfile - --error-logfile - wsgi:app`
+   - **Start Command**: `gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - --error-logfile - wsgi:app`
    - **Instance Type**: `Free`
 4. Under **Advanced**:
    - **Health Check Path**: `/api/health`
