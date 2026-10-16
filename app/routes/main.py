@@ -1,9 +1,15 @@
 """Main web routes for EstateIQ."""
 
-from flask import Blueprint, current_app, render_template
+from flask import Blueprint, current_app, jsonify, render_template
 from app.utils.validation import FEATURE_SPECIFICATIONS
 
 main_bp = Blueprint("main", __name__)
+
+
+@main_bp.route("/healthz", methods=["GET"])
+def healthz():
+    """Lightweight HTTP liveness probe for orchestrators (Render, K8s, load balancers)."""
+    return jsonify({"status": "ok", "service": "estateiq-boston-housing"}), 200
 
 
 @main_bp.route("/")

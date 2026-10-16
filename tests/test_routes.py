@@ -51,6 +51,15 @@ def test_api_health_endpoint_healthy(client):
     assert "secret_key" not in data
 
 
+def test_healthz_endpoint(client):
+    """Verify /healthz lightweight liveness probe returns HTTP 200."""
+    response = client.get("/healthz")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == "ok"
+    assert "service" in data
+
+
 def test_predict_endpoint_valid_payload(client, sample_valid_features):
     """Verify /api/predict returns 200 and formatted valuation when model is loaded."""
     response = client.post(

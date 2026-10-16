@@ -71,27 +71,44 @@ class PredictorService:
         self._is_loaded = False
 
         # Attempt 1: Check for Scikit-Learn Pipeline (Phase 2 primary artifact)
-        if self.pipeline_path and Path(self.pipeline_path).exists():
+        pipeline_file = Path(self.pipeline_path) if self.pipeline_path else None
+        if pipeline_file and not pipeline_file.exists() and not pipeline_file.is_absolute():
+            try:
+                from app.config import BASE_DIR
+                if (BASE_DIR / pipeline_file).exists():
+                    pipeline_file = BASE_DIR / pipeline_file
+            except Exception:
+                pass
+
+        if pipeline_file and pipeline_file.exists():
             try:
                 import joblib
 
-                self.pipeline = joblib.load(self.pipeline_path)
+                self.pipeline = joblib.load(str(pipeline_file))
                 regressor_name = (
                     self.pipeline.named_steps["regressor"].__class__.__name__
                     if hasattr(self.pipeline, "named_steps") and "regressor" in self.pipeline.named_steps
                     else "Estimator"
                 )
                 self.model_type = f"Scikit-Learn Pipeline ({regressor_name})"
-                self.model_identifier = Path(self.pipeline_path).stem
+                self.model_identifier = pipeline_file.stem
                 self._is_loaded = True
-                logger.info("Loaded scikit-learn pipeline from %s", self.pipeline_path)
+                logger.info("Loaded scikit-learn pipeline from %s", pipeline_file)
 
                 # Attempt to load metadata JSON
-                meta_file = (
+                meta_file = Path(
                     self.metadata_path
-                    or str(Path(self.pipeline_path).parent / "model_metadata.json")
+                    or (pipeline_file.parent / "model_metadata.json")
                 )
-                if Path(meta_file).exists():
+                if not meta_file.exists() and not meta_file.is_absolute():
+                    try:
+                        from app.config import BASE_DIR
+                        if (BASE_DIR / meta_file).exists():
+                            meta_file = BASE_DIR / meta_file
+                    except Exception:
+                        pass
+
+                if meta_file.exists():
                     try:
                         with open(meta_file, "r", encoding="utf-8") as f:
                             self.metadata = json.load(f)
@@ -100,7 +117,7 @@ class PredictorService:
                         logger.warning("Could not read metadata from %s: %s", meta_file, me)
                 return
             except Exception as e:
-                logger.warning("Failed to load pipeline from %s: %s", self.pipeline_path, e)
+                logger.exception("Failed to load pipeline from %s: %s", pipeline_file, e)
 
         # Attempt 2: Check for Keras ANN model (trained in ANN For Regression.ipynb)
         if self.keras_path and Path(self.keras_path).exists():

@@ -6,6 +6,17 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def _resolve_artifact_path(env_var_name: str, relative_default: str) -> str:
+    """Resolve an artifact path to an absolute path, prioritizing env vars and anchoring relative paths to BASE_DIR."""
+    val = os.getenv(env_var_name)
+    if val:
+        p = Path(val)
+        if not p.is_absolute():
+            p = BASE_DIR / p
+        return str(p)
+    return str(BASE_DIR / relative_default)
+
+
 class BaseConfig:
     """Base configuration shared across environments."""
 
@@ -19,18 +30,18 @@ class BaseConfig:
     MODELS_DIR = BASE_DIR / "models"
     DATA_DIR = BASE_DIR / "data"
 
-    # Artifact paths
-    MODEL_PIPELINE_PATH = os.getenv(
+    # Artifact paths (guaranteed absolute and robust across any container working directory)
+    MODEL_PIPELINE_PATH = _resolve_artifact_path(
         "MODEL_PIPELINE_PATH",
-        str(MODELS_DIR / "boston_housing_pipeline.joblib"),
+        "models/boston_housing_pipeline.joblib",
     )
-    KERAS_MODEL_PATH = os.getenv(
+    KERAS_MODEL_PATH = _resolve_artifact_path(
         "KERAS_MODEL_PATH",
-        str(MODELS_DIR / "boston_housing_model.keras"),
+        "models/boston_housing_model.keras",
     )
-    METADATA_PATH = os.getenv(
+    METADATA_PATH = _resolve_artifact_path(
         "METADATA_PATH",
-        str(MODELS_DIR / "model_metadata.json"),
+        "models/model_metadata.json",
     )
 
     # 12 User-facing Canonical Predictor Features (Historical B variable excluded from user input)
